@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const port = 8000;
 const expressLayouts = require('express-ejs-layouts');
-app.use(expressLayouts); //it should be upper to routes , keep in mind
+app.use(expressLayouts); //it should be upper to routes , keep in mind 
 
 //extract style and script from sub pages into the layout (vo bs jo layout.css ka link show ho rha tha head m uske liye hai ..taki sare pages and sub pages ke link bhi show ho )so uske liye ab layout,ejs m head m <%- style %> and same script ka mentioned hoga 
 app.set('layout extractStyles',true);
