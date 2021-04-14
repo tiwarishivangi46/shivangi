@@ -1,15 +1,19 @@
+
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const app = express();
 const port = 8000;
 const expressLayouts = require('express-ejs-layouts');
-app.use(expressLayouts); //it should be upper to routes , keep in mind 
 const db = require('./config/mongoose');
 const session = require('express-session');  //used for session cookie
 const passport  = require('passport');  // all in config
 const PassportLocal = require('./config/passport-local-strategy');
+const passportJWT = require('./config/passport-jwt-strategy');
+const passportGoogle = require('./config/passport-google-oauth2-strategy');
 const mongoStore = require('connect-mongo')(session);
 const sassMiddleware = require('node-sass-middleware'); //fpr sa
+const flash = require('connect-flash');
+const customMware = require('./config/middleware'); //connecting middleware
 
 app.use(sassMiddleware({
     src: './assets/scss',  //ye iske liye ki file lene kha se hai jha scss hai 
@@ -21,16 +25,18 @@ app.use(sassMiddleware({
 
 app.use(express.urlencoded()); //setting up middleware 
 app.use(cookieParser()); //setting up middleware
+app.use(express.static( './assets'));
 
+app.use('/uploads',express.static(__dirname + '/uploads'));  //make the picture avaliable so that it can be seen in profile
 
+app.use(expressLayouts); //it should be upper to routes , keep in mind 
 //extract style and script from sub pages into the layout (vo bs jo layout.css ka link show ho rha tha head m uske liye hai ..taki sare pages and sub pages ke link bhi show ho )so uske liye ab layout,ejs m head m <%- style %> and same script ka mentioned hoga 
 app.set('layout extractStyles',true);
 app.set('layout extractScripts',true);
 
 //to include assets ie css js images files
-app.use(express.static( './assets'));
 
-//try to  run it
+
 
 
 
@@ -67,6 +73,10 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(passport.setAuthenticatedUser); //uperphle passort .initialize hoga , phir session start ..phir ye function call hoga ar passport-local...vale file m chla jayega ar usme jha  ye functiin likhaa hai vha check hoga ki agr phle se login hai and cookie present hai to phir profile page khul jayega vrna sign in mangega  
+
+app.use(flash());
+app.use(customMware.setFlash);
+
 
 //use express router
 app.use('/',require('./routes'));

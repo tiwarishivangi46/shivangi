@@ -1,18 +1,30 @@
 const express = require('express');
 const router = express.Router();
-const usersController = require('../controllers/users_controller');
 const passport = require('passport');
 
-router.get('/profile',passport.checkAuthentication,usersController.profile); //ye checkAuthentication esliye likha hai kuki phle esa ho rha tha na ki agr users/profile likho to sidhe profile khul jata agr sign in na ho tbbhi so ye check lgaya hai taki tabi profile khukel jb logined ho 
-//router.get('/profile',,usersController.profile); //ye checkAuthentication esliye likha hai kuki phle esa ho rha tha na ki agr users/profile likho to sidhe profile khul jata agr sign in na ho tbbhi so ye check lgaya hai taki tabi profile khukel jb logined ho 
- router.get('/sign-up',usersController.signup);
- router.get('/sign-in',usersController.signin);
+const usersController = require('../controllers/users_controller');
 
-router.post('/create',usersController.create);
-//router.post('/createSession',usersController.createSession);
-router.post('/createSession',passport.authenticate(
+router.get('/profile/:id', passport.checkAuthentication, usersController.profile);
+router.post('/update/:id', usersController.update);
+
+router.get('/sign-up', usersController.signup);
+router.get('/sign-in', usersController.signin);
+
+
+router.post('/create', usersController.create);
+
+//use passport as a middleware to authenticate
+router.post('/create-session', passport.authenticate(
     'local',
-    {failureRedirect:'/users/sign-in'},
+    {failureRedirect: '/users/sign-in'},
 ), usersController.createSession);
 
- module.exports = router;
+
+router.get('/sign-out', usersController.destroySession);
+
+//for google authentication 
+router.get('/auth/google',passport.authenticate('google' , { scope: ['profile','email']}));
+router.get('/auth/google/callback',passport.authenticate('google', {faliureRedirect:'/users/sign-in'}),usersController.createSession);
+//phla rout to vo hai jb google ko bolte ki jo mail hai vo authenticate kr 
+//fir uske bad jb vo authenticate krke deta hai vps codeial ko vo callback rout
+module.exports = router;
